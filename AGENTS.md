@@ -1,9 +1,9 @@
-# MadiTech site maintenance
+# MadiTech single-document frontend
 
-- Preserve the approved English/French/Persian design and original supplied images. Never use the roadmap collage as a website asset.
-- Keep all visible interface text in the translation dictionaries, with matching en/fr/fa keys. Persian must set lang=fa and dir=rtl; preserve LTR brand spelling.
-- Preserve facial identity. Fix cropping with CSS before considering image generation.
-- Run `node scripts/check-site.mjs` before committing. Check the browser preview when changing layout or interactions.
-- With empty assets/config.js apiBase, chat remains an explicit demo. A real API companion is prepared under backend/ but is not deployed. Do not claim it is active until live-tested. Never expose credentials in HTML.
-- Contact/service dialogs download drafts when the backend is absent. A success message is allowed only after the backend confirms webhook delivery. Never imply drafts were sent.
-- Production is the existing Render Static Site on main. No build dependencies are required. Keep Root Directory empty and Publish Directory set to `.`.
+The user superseded earlier project guidance with a self-contained full-screen hero brief. Keep the active frontend in index.html, using inline styles, inline SVG and vanilla JavaScript. Do not introduce JS libraries, build tools or external assets beyond the two Google Fonts; original brand images are embedded.
+
+Preserve the current MadiTech identity and EN/FR/FA translations. Keep Persian words joined rather than splitting their connected glyphs. Retain keyboard navigation, accessible dialogs, reduced motion and the 390px layout.
+
+Brief downloads are local drafts, never online submissions. Existing backend files are dormant; never claim live AI or n8n integration without separate verified deployment.
+
+Validate with node scripts/check-site.mjs and preview layout/motion before changing production. The existing Render Static Site publishes main.
