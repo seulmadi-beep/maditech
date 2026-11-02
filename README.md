@@ -1,16 +1,17 @@
 # MadiTech
 
-Responsive static brand website restored from MadiTech Website v0.4, with original cyborg and guardian artwork, English/French language switching, scroll reveals, CSS motion and perspective hover effects.
+Approved EN/FR/FA brand website with original artwork, Persian RTL, local chat demo and service enquiry dialogs.
 
-## Render
+## Frontend deployment
+Render Static Site, branch main, empty Root Directory, build command `echo "No build required"`, Publish Directory `.`. The current public website is https://maditech-mahdi.onrender.com.
 
-- Service: Static Site
-- Branch: main
-- Root Directory: leave empty
-- Build Command: echo "No build required"
-- Publish Directory: .
-- No start command or environment variables required.
+## Verification
+`node scripts/check-site.mjs`
+`node --test backend/service.test.mjs`
 
-Open index.html with assets/ beside it. No dependencies or installation needed.
+GitHub Actions runs these checks on pushes and pull requests.
 
-The chat is a local demonstration with predefined replies, not a live AI integration. The contact button copies a draft message and does not send it. Visual motion uses CSS perspective, not a WebGL 3D model.
+## Connection state
+The backend under backend/ is implemented and locally tested, but not hosted or connected. See backend/README.md and automation/README.md. With an empty public apiBase in assets/config.js, chat remains explicitly a demo and requests can only be downloaded as drafts. No keys or secrets are stored in this repository. No roadmap collage is used as a site asset.
+
+Owner-only content generation returns drafts and never publishes them or sends messages to customers. No n8n runtime, CRM connection, provider account or paid subscription is provisioned by this repository.

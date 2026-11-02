@@ -22,3 +22,5 @@ for(const m of html.matchAll(/data-i="([^"]+)"/g))for(const lang of ['en','fr','
 check(html.includes("dir=language==='fa'?'rtl':'ltr'"),'Missing RTL switch');
 check(html.includes('maditech-language'),'Missing language persistence');
 console.log('Passed: JavaScript syntax, image files, anchor links, IDs, EN/FR/FA translation coverage, RTL and language persistence.');
+
+for(const match of html.matchAll(/<script[^>]+src="([^"]+)"/g)){const path=resolve(root,match[1]);check(existsSync(path),`Missing script ${match[1]}`);const r=spawnSync(process.execPath,["--check",path],{encoding:"utf8"});check(r.status===0,r.stderr)}

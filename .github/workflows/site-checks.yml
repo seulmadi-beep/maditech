@@ -15,3 +15,6 @@ jobs:
           persist-credentials: false
       - name: Validate static site and all three languages
         run: node scripts/check-site.mjs
+
+      - name: Test API behavior without external credentials
+        run: node --test backend/service.test.mjs
