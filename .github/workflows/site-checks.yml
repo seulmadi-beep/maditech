@@ -18,3 +18,6 @@ jobs:
 
       - name: Test API behavior without external credentials
         run: node --test backend/service.test.mjs
+
+      - name: Test the approved-project sync without network access
+        run: node --test scripts/sync-projects.test.mjs

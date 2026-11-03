@@ -24,3 +24,19 @@ check(html.includes('maditech-language'),'Missing language persistence');
 console.log('Passed: JavaScript syntax, image files, anchor links, IDs, EN/FR/FA translation coverage, RTL and language persistence.');
 
 for(const match of html.matchAll(/<script[^>]+src="([^"]+)"/g)){const path=resolve(root,match[1]);check(existsSync(path),`Missing script ${match[1]}`);const r=spawnSync(process.execPath,["--check",path],{encoding:"utf8"});check(r.status===0,r.stderr)}
+
+// Public GitHub project cards: generated data must be well formed and trilingual.
+const projectBlock=html.match(/\/\* GITHUB-PROJECTS:START[^*]*\*\/\nconst githubProjects=(.*);\n\/\* GITHUB-PROJECTS:END \*\//);
+check(projectBlock,'Missing GITHUB-PROJECTS block');
+const githubProjects=JSON.parse(projectBlock[1]);
+const approvedProjects=JSON.parse(readFileSync(resolve(root,'projects/approved-projects.json'),'utf8'));
+const approvedRepos=new Set(approvedProjects.projects.map(p=>p.repo));
+for(const p of githubProjects){
+  check(approvedRepos.has(p.repo),`Project ${p.repo} is not in projects/approved-projects.json`);
+  check(['ai','robotics','studio','apps'].includes(p.category),`Bad category for ${p.repo}`);
+  check(['live','prototype','concept','archived'].includes(p.status),`Bad status for ${p.repo}`);
+  check(p.url===`https://github.com/${approvedProjects.owner}/${p.repo}`,`Bad GitHub URL for ${p.repo}`);
+  check(p.demo===null||/^https:\/\//.test(p.demo),`Bad demo URL for ${p.repo}`);
+  for(const lang of ['en','fr','fa'])check(p.copy[lang]?.name&&p.copy[lang]?.summary,`Missing ${lang} copy for ${p.repo}`);
+}
+console.log(`Passed: ${githubProjects.length} approved GitHub project cards with EN/FR/FA copy.`);

@@ -3,6 +3,7 @@
 ## Active
 - GitHub Actions validates source, image paths, anchor links, all EN/FR/FA translations and API behavior on every push or pull request.
 - Render's existing frontend auto-deployment continues to publish main.
+- Weekly project sync (`.github/workflows/project-sync.yml`): checks only the repositories approved in `projects/approved-projects.json` and opens a review pull request when their public GitHub facts change. No pull request when nothing changed. It does not merge, deploy or change Render.
 
 ## Prepared, awaiting a server and credentials
 - Real AI chat through the companion service.

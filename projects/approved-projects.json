@@ -1,0 +1,69 @@
+{
+  "owner": "seulmadi-beep",
+  "notes": "Only repositories listed here may appear on the site or be checked by the weekly sync. Add a repository only after the owner approves it. Copy is written by hand from the repository's real content; the sync never rewrites it.",
+  "projects": [
+    {
+      "repo": "salon-chatbot",
+      "category": "ai",
+      "status": "prototype",
+      "demo": null,
+      "showUpdated": true,
+      "copy": {
+        "en": {
+          "name": "Salon booking assistant",
+          "summary": "A single-page chat demo for a hair salon, written in French. Replies come from the Groq API using a key each visitor enters in their own browser. No hosted demo yet."
+        },
+        "fr": {
+          "name": "Assistant de réservation pour salon",
+          "summary": "Une démo de chat sur une seule page pour un salon de coiffure, en français. Les réponses viennent de l’API Groq, avec une clé que chaque visiteur saisit dans son navigateur. Pas encore de démo en ligne."
+        },
+        "fa": {
+          "name": "دستیار رزرو سالن آرایش",
+          "summary": "نمونه گفت‌وگوی یک‌صفحه‌ای به زبان فرانسوی برای یک سالن آرایش. پاسخ‌ها از سرویس Groq می‌آیند و هر بازدیدکننده باید کلید خودش را در مرورگرش وارد کند. هنوز نسخه آنلاین ندارد."
+        }
+      }
+    },
+    {
+      "repo": "viral-bot",
+      "category": "studio",
+      "status": "prototype",
+      "demo": null,
+      "showUpdated": true,
+      "copy": {
+        "en": {
+          "name": "Automated short-video pipeline",
+          "summary": "A Python script that writes a short motivational script with Groq, voices it with Edge TTS, edits Pexels stock clips and subtitles with FFmpeg, then uploads to YouTube and Telegram. Scheduled with GitHub Actions; experimental."
+        },
+        "fr": {
+          "name": "Chaîne automatisée de vidéos courtes",
+          "summary": "Un script Python qui écrit un court texte de motivation avec Groq, le met en voix avec Edge TTS, monte des extraits Pexels et des sous-titres avec FFmpeg, puis publie sur YouTube et Telegram. Planifié avec GitHub Actions ; expérimental."
+        },
+        "fa": {
+          "name": "خط تولید خودکار ویدیوی کوتاه",
+          "summary": "اسکریپتی پایتونی که با Groq متن انگیزشی کوتاه می‌نویسد، با Edge TTS آن را صداگذاری می‌کند، کلیپ‌های Pexels و زیرنویس را با FFmpeg تدوین می‌کند و نتیجه را در YouTube و Telegram منتشر می‌کند. با GitHub Actions زمان‌بندی شده و آزمایشی است."
+        }
+      }
+    },
+    {
+      "repo": "maditech",
+      "category": "apps",
+      "status": "live",
+      "demo": "https://maditech.onrender.com/",
+      "showUpdated": false,
+      "copy": {
+        "en": {
+          "name": "MadiTech website",
+          "summary": "This trilingual site in English, French and Persian: one HTML file with inline CSS, SVG and vanilla JavaScript, published as a Render static site."
+        },
+        "fr": {
+          "name": "Site MadiTech",
+          "summary": "Ce site trilingue en anglais, français et persan : un seul fichier HTML avec CSS, SVG et JavaScript intégrés, publié comme site statique sur Render."
+        },
+        "fa": {
+          "name": "وب‌سایت MadiTech",
+          "summary": "همین سایت سه‌زبانه انگلیسی، فرانسوی و فارسی؛ یک فایل HTML با CSS، SVG و جاوااسکریپت ساده که به‌صورت سایت ایستا روی Render منتشر می‌شود."
+        }
+      }
+    }
+  ]
+}
