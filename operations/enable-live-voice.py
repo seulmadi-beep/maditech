@@ -245,6 +245,32 @@ def probe_live(version, token, setup):
             return False
 
 
+
+def list_live_models(key, version):
+    catalog = []
+    page = None
+    seen = set()
+    for _ in range(20):
+        endpoint = 'models' + ('?pageToken=' + quote(page, safe='') if page else '')
+        data = api(key, version, endpoint)
+        catalog.extend(data.get('models', []))
+        page = data.get('nextPageToken')
+        if not page:
+            break
+        if page in seen:
+            raise RuntimeError('Repeated model catalog page')
+        seen.add(page)
+    else:
+        raise RuntimeError('Model catalog exceeded 20 pages')
+    names = {m['name'] for m in catalog if any('bidigeneratecontent' in str(method).lower() for method in m.get('supportedGenerationMethods', [])) and not any(word in m['name'].lower() for word in ('transcrib', 'translat', 'robotics'))}
+    # These native-audio variants passed the actual server's diagnostic.
+    preferred = ['models/gemini-2.5-flash-native-audio-latest', 'models/gemini-2.5-flash-native-audio-preview-12-2025', 'models/gemini-2.5-flash-native-audio-preview-09-2025']
+    rank = {name: i for i, name in enumerate(preferred)}
+    models = sorted(names, key=lambda name: (rank.get(name, len(preferred)), 'native-audio' not in name, name))
+    print('Catalog:', version, '| models:', len(catalog), '| Live models:', len(models))
+    return models
+
+
 def main():
     if not ROOT.is_dir() or not MAIN.is_file() or not KEY.is_file():
         raise SystemExit('Existing backend or saved Gemini key was not found. No changes made.')
@@ -253,10 +279,9 @@ def main():
     selected = None
     for version in ('v1beta', 'v1alpha'):
         try:
-            catalog = api(key, version, 'models').get('models', [])
-            models = [m['name'] for m in catalog if any('bidigeneratecontent' in v.lower() for v in m.get('supportedGenerationMethods', [])) and 'transcrib' not in m['name'] and 'translat' not in m['name']]
-            models.sort(key=lambda name: ('native-audio' in name, 'flash' in name, name), reverse=True)
-            for model in models[:4]:
+            models = list_live_models(key, version)
+            for model in models[:6]:
+                print('Testing:', version, model, flush=True)
                 now = datetime.now(timezone.utc)
                 setup = {'model': model, 'generationConfig': {'responseModalities': ['AUDIO'], 'maxOutputTokens': 512, 'speechConfig': {'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': 'Kore'}}}}, 'systemInstruction': {'parts': [{'text': 'You are MadiTech assistant. Reply briefly.'}]}, 'inputAudioTranscription': {}, 'outputAudioTranscription': {}, 'realtimeInputConfig': {'automaticActivityDetection': {'silenceDurationMs': 350}}}
                 try:
@@ -264,14 +289,16 @@ def main():
                     if result.get('name') and probe_live(version, result['name'], setup):
                         selected = (version, model)
                         break
-                except (HTTPError, OSError, ValueError, RuntimeError):
+                except (HTTPError, OSError, ValueError, RuntimeError) as error:
+                    print('Live check:', type(error).__name__, getattr(error, 'code', ''))
                     continue
             if selected:
                 break
-        except HTTPError:
+        except (HTTPError, OSError, ValueError, RuntimeError) as error:
+            print('Catalog check:', type(error).__name__, getattr(error, 'code', ''))
             continue
     if not selected:
-        raise SystemExit('Google did not accept a constrained Live session for this key. No application files changed. Check Live API access/billing in AI Studio.')
+        raise SystemExit('No Live session was verified. No application files changed. Share the catalog/testing output for diagnosis.')
     version, model = selected
     print('Google verified the Live WebSocket session:', model)
     original = MAIN.read_text()
