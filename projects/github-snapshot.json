@@ -1,0 +1,38 @@
+{
+  "owner": "seulmadi-beep",
+  "projects": {
+    "salon-chatbot": {
+      "available": true,
+      "url": "https://github.com/seulmadi-beep/salon-chatbot",
+      "description": "",
+      "homepage": "",
+      "language": "HTML",
+      "archived": false,
+      "defaultBranch": "main",
+      "updated": "2026-06",
+      "readmeSha": ""
+    },
+    "viral-bot": {
+      "available": true,
+      "url": "https://github.com/seulmadi-beep/viral-bot",
+      "description": "",
+      "homepage": "",
+      "language": "Python",
+      "archived": false,
+      "defaultBranch": "main",
+      "updated": "2026-11",
+      "readmeSha": "1a20306d18f8acb1c3a5c404128572c4c9bce64e"
+    },
+    "maditech": {
+      "available": true,
+      "url": "https://github.com/seulmadi-beep/maditech",
+      "description": "",
+      "homepage": "",
+      "language": "HTML",
+      "archived": false,
+      "defaultBranch": "main",
+      "updated": "2026-11",
+      "readmeSha": "e62aab8749688e267d802b5891dab6bd7c0b55bb"
+    }
+  }
+}
