@@ -40,3 +40,17 @@ for(const p of githubProjects){
   for(const lang of ['en','fr','fa'])check(p.copy[lang]?.name&&p.copy[lang]?.summary,`Missing ${lang} copy for ${p.repo}`);
 }
 console.log(`Passed: ${githubProjects.length} approved GitHub project cards with EN/FR/FA copy.`);
+
+const voicePolicy=main.slice(main.indexOf('const pinnedReplyVoices='),main.indexOf('const feminineVoiceUnavailable='));
+check(voicePolicy.includes('function chooseFeminineReplyVoice'),'Missing stable feminine voice policy');
+const voiceContext={};vm.runInNewContext(voicePolicy+';select=chooseFeminineReplyVoice;',voiceContext,{timeout:1000});
+const voice=(name,lang,voiceURI=name)=>({name,lang,voiceURI});
+const daniel=voice('Daniel Premium','en-GB'),samantha=voice('Samantha','en-US'),ava=voice('Ava Enhanced','en-US'),amelie=voice('Amélie Enhanced','fr-FR'),dilara=voice('Microsoft Dilara Online (Natural)','fa-IR');
+check(voiceContext.select([daniel,samantha,ava],'en-US')===ava,'Prefer natural feminine voice over masculine or basic voice');
+check(voiceContext.select([samantha,ava,daniel],'en-US')===ava,'Keep selected voice when list ordering changes');
+check(voiceContext.select([daniel,samantha],'en-US')===null,'Do not change voices when pinned voice disappears');
+check(voiceContext.select([voice('Thomas Premium','fr-FR')],'fr-FR')===null,'Do not use masculine French voice');
+check(voiceContext.select([amelie],'fr-FR')===amelie,'Use supported feminine French voice');
+check(voiceContext.select([voice('Unknown Persian','fa-IR')],'fa-IR')===null,'Do not guess voice gender');
+check(voiceContext.select([dilara],'fa-IR')===dilara,'Use supported feminine Persian voice');
+console.log('Passed: fixed feminine voice selection, language matching and safe text fallback.');
