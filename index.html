@@ -251,16 +251,31 @@ function stopSpeech(){speechGeneration++;if('speechSynthesis' in window){try{spe
 function stopListening(){if(recognition){try{recognition.abort()}catch{}}listening=false;document.body.classList.remove('listening');syncVoiceLabels()}
 function syncVoiceLabels(){const t=translations[language];voiceLaunch.querySelector('.voice-launch-label').textContent=t.voiceTitle;voiceLaunch.setAttribute('aria-label',t.voiceTitle);mic.textContent=listening?t.voiceStop:t.voiceStart;mic.setAttribute('aria-pressed',String(listening));audioToggle.textContent=t.voiceAudio;audioToggle.setAttribute('aria-pressed',String(audioEnabled));quiet.textContent=t.voiceQuiet;voicePanel.querySelector('.voice-note').textContent=chatCopy[language].notice;if(!listening&&!document.body.classList.contains('speaking'))voiceStatus.textContent=voiceProblem||t.voiceReady}
 function voiceIssue(code){const labels={en:{permission:'Microphone access was denied. Open this page in Safari or Chrome and allow the microphone in site settings. You can also use keyboard dictation.',unsupported:'Voice input is unavailable here. Open the site in Safari or Chrome, or use your keyboard microphone.',silent:'No speech was detected. Tap the microphone and try again.',network:'The browser speech service is unavailable. Try keyboard dictation.'},fr:{permission:'Accès au micro refusé. Ouvrez cette page dans Safari ou Chrome et autorisez le micro dans les réglages du site. La dictée du clavier reste possible.',unsupported:'La saisie vocale est indisponible ici. Ouvrez Safari ou Chrome, ou utilisez le micro du clavier.',silent:'Aucune parole détectée. Touchez le micro pour réessayer.',network:'Le service vocal du navigateur est indisponible. Essayez la dictée du clavier.'},fa:{permission:'دسترسی میکروفن رد شده است. سایت را در Safari یا Chrome باز کنید و در تنظیمات سایت به میکروفن اجازه دهید؛ میکروفن کیبورد هم قابل استفاده است.',unsupported:'ورودی صوتی اینجا در دسترس نیست. سایت را در Safari یا Chrome باز کنید یا از میکروفن کیبورد استفاده کنید.',silent:'صدایی تشخیص داده نشد؛ دوباره روی میکروفن بزنید و صحبت کنید.',network:'سرویس گفتار مرورگر در دسترس نیست؛ از میکروفن کیبورد استفاده کنید.'}};return labels[language][code]||translations[language].voiceMicError}
+// Keep one known feminine voice per language for the whole visit. Never fall
+// back to the browser default (which may be a different or masculine voice).
+const pinnedReplyVoices=new Map();
+const feminineVoiceNames={en:/\b(samantha|ava|allison|susan|serena|karen|moira|tessa|fiona|victoria|zira|jenny|aria|michelle|sonia|libby|natasha|emma|female)\b/i,fr:/\b(am[ée]lie|julie|audrey|aur[ée]lie|marie|virginie|denise|sylvie|celine|c[ée]line|jos[ée]phine|female|f[ée]minine)\b/i,fa:/\b(dilara|delara|female)\b|دلارا/i};
+function chooseFeminineReplyVoice(voices,locale){
+ const prefix=locale.toLowerCase().split('-')[0],names=feminineVoiceNames[prefix];
+ if(!names)return null;
+ const eligible=voices.filter(v=>v.lang.toLowerCase().split('-')[0]===prefix&&names.test(v.name.replace(/([a-z])([A-Z])/g,'$1 $2'))&&!/\b(male|masculine|man|homme)\b/i.test(v.name));
+ const pinned=pinnedReplyVoices.get(prefix);if(pinned)return eligible.find(v=>v.voiceURI===pinned)||null;
+ const score=v=>(/natural|neural|enhanced|premium|online/i.test(v.name)?100:0)+(v.lang.toLowerCase()===locale.toLowerCase()?10:0);
+ const selected=eligible.sort((a,b)=>score(b)-score(a)||a.voiceURI.localeCompare(b.voiceURI))[0];
+ if(selected)pinnedReplyVoices.set(prefix,selected.voiceURI);
+ return selected||null;
+}
+const feminineVoiceUnavailable={en:'No compatible feminine voice is available on this device. Text chat is still available.',fr:'Aucune voix féminine compatible sur cet appareil. Le chat écrit reste disponible.',fa:'صدای زنانهٔ سازگار در این دستگاه در دسترس نیست؛ گفت‌وگوی متنی همچنان فعال است.'};
 function speakReply(text){
  if(liveVoice||!audioEnabled||!chatDialog.open)return;stopSpeech();lastSpokenReply=text;
  if(!('speechSynthesis' in window)||!window.SpeechSynthesisUtterance){voiceProblem=translations[language].voiceNoAudio;syncVoiceLabels();return}
- const generation=speechGeneration,voices=speechSynthesis.getVoices(),candidates=voices.filter(v=>v.lang.toLowerCase().split('-')[0]===language);
- const score=v=>(/natural|neural|enhanced|premium|online/i.test(v.name)?50:0)+(/siri|google|microsoft|thomas|daniel|samantha/i.test(v.name)?15:0)+(v.default?5:0);candidates.sort((a,b)=>score(b)-score(a));
+ const generation=speechGeneration,locale=language==='fa'?'fa-IR':language==='fr'?'fr-FR':'en-US',voice=chooseFeminineReplyVoice(speechSynthesis.getVoices(),locale);
+ if(!voice){voiceProblem=feminineVoiceUnavailable[language];syncVoiceLabels();return}
  const clean=text.replace(/[*#_`]/g,'').replace(/https?:\/\/\S+/g,'').trim();
  const chunks=clean.match(/[^.!?؟。\n]+[.!?؟。\n]*/g)||[clean];const queue=[];for(const chunk of chunks){const words=chunk.trim().split(/\s+/);let part='';for(const word of words){if(part.length+word.length>180&&part){queue.push(part);part=''}part+=(part?' ':'')+word}if(part)queue.push(part)}
  let started=false,failed=false,watchdog=0;
  function finish(){clearTimeout(watchdog);if(generation!==speechGeneration)return;clearInterval(mouthTimer);mouthTimer=0;document.body.classList.remove('speaking');mouthLevel(.15);syncVoiceLabels()}
- queue.forEach((chunk,index)=>{const utterance=new SpeechSynthesisUtterance(chunk);utterance.lang=language==='fa'?'fa-IR':language==='fr'?'fr-FR':'en-US';if(candidates[0])utterance.voice=candidates[0];utterance.rate=language==='fa'?1:1.04;utterance.pitch=1;utterance.volume=1;
+ queue.forEach((chunk,index)=>{const utterance=new SpeechSynthesisUtterance(chunk);utterance.lang=voice.lang;utterance.voice=voice;utterance.rate=.96;utterance.pitch=1;utterance.volume=1;
  utterance.onstart=()=>{if(generation!==speechGeneration)return;started=true;clearTimeout(watchdog);voiceProblem='';document.body.classList.add('speaking');voiceStatus.textContent=translations[language].voiceSpeaking;clearInterval(mouthTimer);let position=0;mouthTimer=setInterval(()=>{if(generation!==speechGeneration)return;const char=chunk[position++%chunk.length];const closed=/[\s.,!?؟،بپم]/.test(char);mouthLevel(closed?.18:/[اآوaeiou]/i.test(char)?1.7:.8)},85)};
  utterance.onboundary=e=>{if(generation!==speechGeneration)return;const word=chunk.slice(e.charIndex,e.charIndex+(e.charLength||4));mouthLevel(/[بپم]/.test(word[0]||'')?.2:Math.min(1.8,.5+word.length*.15))};
  utterance.onend=()=>{if(index===queue.length-1)finish()};utterance.onerror=e=>{if(generation!==speechGeneration||failed||e.error==='canceled'||e.error==='interrupted')return;failed=true;voiceProblem=translations[language].voiceNoAudio;finish()};speechSynthesis.speak(utterance)});
